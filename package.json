@@ -1,0 +1,47 @@
+{
+  "name": "apeximob-crm",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "tsx api-server.ts",
+    "build": "vite build",
+    "start": "NODE_ENV=production tsx api-server.ts",
+    "preview": "vite preview",
+    "clean": "rm -rf dist server.js",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ses": "^3.1148.0",
+    "@google/genai": "^2.4.0",
+    "@tailwindcss/vite": "^4.0.9",
+    "@vitejs/plugin-react": "^4.3.4",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "firebase": "^11.3.1",
+    "firebase-admin": "^14.5.0",
+    "jspdf": "^2.5.2",
+    "lucide-react": "^0.475.0",
+    "motion": "^12.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "recharts": "^2.15.1",
+    "vite": "^5.4.14"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/jspdf": "^2.0.0",
+    "@types/node": "^22.13.1",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "autoprefixer": "^10.4.20",
+    "esbuild": "^0.24.2",
+    "tailwindcss": "^4.0.9",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vite-plugin-pwa": "^0.21.1"
+  }
+}

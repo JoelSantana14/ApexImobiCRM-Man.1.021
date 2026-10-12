@@ -1,0 +1,161 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+
+    function memberPath() {
+      return /databases/$(database)/documents/agency_members/$(request.auth.uid);
+    }
+
+    function isAgencyMember() {
+      return signedIn()
+        && exists(memberPath())
+        && get(memberPath()).data.active == true
+        && get(memberPath()).data.orgId == 'apeximob'
+        && get(memberPath()).data.email == request.auth.token.email;
+    }
+
+    function member() {
+      return get(memberPath()).data;
+    }
+
+    function isDirector() {
+      return isAgencyMember() && member().role == 'diretor';
+    }
+
+    function isManager() {
+      return isAgencyMember() && member().role in ['diretor', 'gerente'];
+    }
+
+    function isBroker() {
+      return isAgencyMember()
+        && member().role in ['corretor_senior', 'corretor_pleno']
+        && member().brokerId is string
+        && member().brokerId.size() > 0;
+    }
+
+    function ownsBrokerId(brokerId) {
+      return isBroker() && brokerId == member().brokerId;
+    }
+
+    function validId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Membership is provisioned by the trusted server/Admin SDK, never by the browser.
+    match /agency_members/{memberId} {
+      allow get: if isAgencyMember() && request.auth.uid == memberId;
+      allow list: if isDirector();
+      allow create, delete: if false;
+      allow update: if isAgencyMember()
+        && request.auth.uid == memberId
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'phone', 'creci', 'avatar', 'bio', 'updatedAt'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() <= 100;
+    }
+
+    match /system_meta/{metaId} {
+      allow read: if isAgencyMember();
+      allow write: if isManager() && validId(metaId);
+    }
+
+    match /leads/{leadId} {
+      allow read: if isManager() || ownsBrokerId(resource.data.assignedBrokerId);
+      allow create: if validId(leadId)
+        && (isManager() || ownsBrokerId(request.resource.data.assignedBrokerId));
+      allow update: if validId(leadId)
+        && (isManager() || (ownsBrokerId(resource.data.assignedBrokerId)
+          && request.resource.data.assignedBrokerId == member().brokerId));
+      allow delete: if isManager() || ownsBrokerId(resource.data.assignedBrokerId);
+    }
+
+    match /properties/{propertyId} {
+      allow read: if isManager() || ownsBrokerId(resource.data.brokerCaptatorId);
+      allow create: if validId(propertyId)
+        && (isManager() || ownsBrokerId(request.resource.data.brokerCaptatorId));
+      allow update: if validId(propertyId)
+        && (isManager() || (ownsBrokerId(resource.data.brokerCaptatorId)
+          && request.resource.data.brokerCaptatorId == member().brokerId));
+      allow delete: if isManager() || ownsBrokerId(resource.data.brokerCaptatorId);
+    }
+
+    match /commissions/{commissionId} {
+      allow read: if isManager() || (isBroker()
+        && resource.data.brokerIds is list
+        && resource.data.brokerIds.hasAny([member().brokerId]));
+      allow create: if validId(commissionId)
+        && (isManager() || (isBroker()
+          && request.resource.data.brokerIds is list
+          && request.resource.data.brokerIds.hasOnly([member().brokerId])));
+      allow update: if validId(commissionId)
+        && (isManager() || (isBroker()
+          && resource.data.brokerIds is list
+          && resource.data.brokerIds.hasAny([member().brokerId])
+          && (resource.data == request.resource.data
+            || (request.resource.data.brokerIds is list
+              && request.resource.data.brokerIds.hasOnly([member().brokerId])))));
+      allow delete: if isManager() || (isBroker()
+        && resource.data.brokerIds is list
+        && resource.data.brokerIds.hasAny([member().brokerId]));
+    }
+
+    match /brokers/{brokerId} {
+      allow read: if isManager() || ownsBrokerId(brokerId);
+      allow create, delete: if isManager();
+      allow update: if isManager() || (ownsBrokerId(brokerId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['name', 'email', 'phone', 'creci', 'avatar']));
+    }
+
+    match /crm_tasks/{taskId} {
+      allow read: if isManager() || ownsBrokerId(resource.data.assignedBrokerId);
+      allow create: if validId(taskId)
+        && (isManager() || ownsBrokerId(request.resource.data.assignedBrokerId));
+      allow update: if validId(taskId)
+        && (isManager() || (ownsBrokerId(resource.data.assignedBrokerId)
+          && request.resource.data.assignedBrokerId == member().brokerId));
+      allow delete: if isManager() || ownsBrokerId(resource.data.assignedBrokerId);
+    }
+
+    match /activity_logs/{logId} {
+      allow read: if isManager() || (isBroker() && (
+        resource.data.authorId == request.auth.uid
+        || resource.data.authorId == member().brokerId
+        || (resource.data.relatedBrokerIds is list
+          && resource.data.relatedBrokerIds.hasAny([member().brokerId]))
+      ));
+      allow create: if validId(logId) && (isManager() || (isBroker()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.relatedBrokerIds is list
+        && request.resource.data.relatedBrokerIds.hasAny([member().brokerId])
+        && request.resource.data.relatedBrokerIds.hasOnly([member().brokerId])));
+      allow update: if isManager() || (isBroker()
+        && resource.data == request.resource.data
+        && (resource.data.authorId == request.auth.uid
+          || resource.data.authorId == member().brokerId
+          || (resource.data.relatedBrokerIds is list
+            && resource.data.relatedBrokerIds.hasAny([member().brokerId]))));
+      allow delete: if false;
+    }
+
+    match /team_invites/{inviteId} {
+      allow read: if isDirector();
+      // Invitations are provisioned by the authenticated server/Admin SDK.
+      allow write: if false;
+    }
+
+    match /users/{userId} {
+      allow get: if isAgencyMember() && request.auth.uid == userId;
+      allow list: if isDirector();
+      allow create, update, delete: if false;
+    }
+
+    // Deny every unlisted collection by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

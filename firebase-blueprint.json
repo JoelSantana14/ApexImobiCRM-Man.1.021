@@ -1,0 +1,196 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Lead",
+      "description": "Oportunidade ou contato comercial imobiliário",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "stage": { "type": "string" },
+        "source": { "type": "string" },
+        "temperature": { "type": "string" },
+        "budgetMin": { "type": "number" },
+        "budgetMax": { "type": "number" },
+        "interestType": { "type": "string" },
+        "preferredLocations": { "type": "array" },
+        "bedroomsMin": { "type": "number" },
+        "assignedBrokerId": { "type": "string" },
+        "assignedBrokerName": { "type": "string" },
+        "score": { "type": "number" },
+        "notes": { "type": "string" },
+        "scheduledVisitDate": { "type": "string" },
+        "scheduledVisitTime": { "type": "string" },
+        "scheduledVisitPropertyCode": { "type": "string" },
+        "scheduledVisitLocation": { "type": "string" },
+        "scheduledVisitNotes": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "stage"]
+    },
+    "Property": {
+      "title": "Property",
+      "description": "Imóvel do inventário e carteira",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "title": { "type": "string" },
+        "type": { "type": "string" },
+        "price": { "type": "number" },
+        "condom": { "type": "number" },
+        "iptu": { "type": "number" },
+        "commissionPercent": { "type": "number" },
+        "neighborhood": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "area": { "type": "number" },
+        "bedrooms": { "type": "number" },
+        "status": { "type": "string" },
+        "brokerCaptatorId": { "type": "string" },
+        "brokerCaptatorName": { "type": "string" },
+        "registeredAt": { "type": "string" }
+      },
+      "required": ["id", "code", "title", "price", "status"]
+    },
+    "CommissionDeal": {
+      "title": "CommissionDeal",
+      "description": "Negócio fechado e split de comissão",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "propertyCode": { "type": "string" },
+        "propertyTitle": { "type": "string" },
+        "leadId": { "type": "string" },
+        "leadName": { "type": "string" },
+        "saleValue": { "type": "number" },
+        "grossCommissionPercent": { "type": "number" },
+        "grossCommissionValue": { "type": "number" },
+        "status": { "type": "string" },
+        "dealDate": { "type": "string" }
+      },
+      "required": ["id", "saleValue", "grossCommissionValue", "status"]
+    },
+    "Broker": {
+      "title": "Broker",
+      "description": "Perfil e carteira do corretor imobiliário",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "creci": { "type": "string" },
+        "role": { "type": "string" },
+        "totalVGV": { "type": "number" },
+        "totalCommissionEarned": { "type": "number" },
+        "monthlyTargetVGV": { "type": "number" },
+        "monthlyAchievedVGV": { "type": "number" }
+      },
+      "required": ["id", "name", "email", "creci"]
+    },
+    "ImmutableActivityLog": {
+      "title": "ImmutableActivityLog",
+      "description": "Registro imutável auditado com hash SHA-256",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sequenceNumber": { "type": "number" },
+        "timestamp": { "type": "string" },
+        "authorId": { "type": "string" },
+        "authorName": { "type": "string" },
+        "authorRole": { "type": "string" },
+        "entityType": { "type": "string" },
+        "entityId": { "type": "string" },
+        "entityName": { "type": "string" },
+        "actionType": { "type": "string" },
+        "title": { "type": "string" },
+        "details": { "type": "string" },
+        "previousHash": { "type": "string" },
+        "hash": { "type": "string" },
+        "isImmutable": { "type": "boolean" }
+      },
+      "required": ["id", "sequenceNumber", "timestamp", "hash", "isImmutable"]
+    },
+    "TeamInvite": {
+      "title": "TeamInvite",
+      "description": "Convite administrativo emitido por um diretor da imobiliária",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" },
+        "invitedByEmail": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "status"]
+    },
+    "UserAccount": {
+      "title": "UserAccount",
+      "description": "Perfil de acesso do usuário",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "creci": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "name", "email"]
+    },
+    "SystemMeta": {
+      "title": "SystemMeta",
+      "description": "Metadados de inicialização e trava anti-perda de dados",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "initialized": { "type": "boolean" },
+        "seededAt": { "type": "string" },
+        "lastSyncedAt": { "type": "string" }
+      },
+      "required": ["id", "initialized"]
+    }
+  },
+  "firestore": {
+    "/system_meta/{metaId}": {
+      "schema": { "$ref": "#/entities/SystemMeta" },
+      "description": "Estado de controle e persistência definitiva da nuvem"
+    },
+    "/leads/{leadId}": {
+      "schema": { "$ref": "#/entities/Lead" },
+      "description": "Leads cadastrados no CRM"
+    },
+    "/properties/{propertyId}": {
+      "schema": { "$ref": "#/entities/Property" },
+      "description": "Inventário de imóveis ativos"
+    },
+    "/commissions/{commissionId}": {
+      "schema": { "$ref": "#/entities/CommissionDeal" },
+      "description": "Comissões e splits imobiliários"
+    },
+    "/brokers/{brokerId}": {
+      "schema": { "$ref": "#/entities/Broker" },
+      "description": "Carteiras de corretores"
+    },
+    "/activity_logs/{logId}": {
+      "schema": { "$ref": "#/entities/ImmutableActivityLog" },
+      "description": "Trilha forense imutável com hash SHA-256"
+    },
+    "/team_invites/{inviteId}": {
+      "schema": { "$ref": "#/entities/TeamInvite" },
+      "description": "Convites de equipe"
+    },
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserAccount" },
+      "description": "Perfis de usuários"
+    }
+  }
+}

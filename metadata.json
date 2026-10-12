@@ -1,0 +1,6 @@
+{
+  "name": "ApexImob CRM & AI Co-pilot",
+  "description": "CRM imobiliário de alta performance com IA nativa para qualificação de leads, funil de vendas, carteira do corretor, gestão de imóveis, comissões, auditoria imutável e operação offline para corretores em campo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
